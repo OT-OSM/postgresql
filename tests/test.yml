@@ -1,0 +1,7 @@
+---
+- name: PSQL Installation Role
+  hosts: aws_ec2
+  become: true
+  roles:
+    - pg_installation_role
+...

@@ -1,0 +1,5 @@
+---
+# Specify the PostgreSQL version you wish to install, such as 12, 13, 14, 15, or 16. Simply adjust the version parameter accordingly.
+postgres_version: 16
+python_install_psycopg2: True
+...

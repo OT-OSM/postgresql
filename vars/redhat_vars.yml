@@ -1,0 +1,6 @@
+---
+postgresql_redhat_rpm_key_url: "https://download.postgresql.org/pub/repos/yum/keys/RPM-GPG-KEY-PGDG"
+postgresql_redhat_psql_repo: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/pgdg-redhat-repo-latest.noarch.rpm"
+postgresql_data_dir: "/var/lib/pgsql/{{ postgres_version }}/data"
+postgresql_service: postgresql-{{ postgres_version }}
+...

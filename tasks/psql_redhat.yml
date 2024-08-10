@@ -1,0 +1,45 @@
+---
+- name: Update all installed packages using YUM module
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+    update_only: yes
+
+- name: Import PostgreSQL RPM-GPG-KEY
+  rpm_key:
+    key: "{{ postgresql_redhat_rpm_key_url }}"
+    state: present
+
+- name: Add pgsql repository for the redhat distribution
+  yum:
+    name: "{{ postgresql_redhat_psql_repo }}"
+    state: present
+  register: postgresql_yum_result
+  until: postgresql_yum_result is succeeded
+  retries: 5
+  delay: 5
+
+- name: Install PostgreSQL
+  yum:
+    name: postgresql{{ postgres_version }}-server
+
+- name: Check postgresql data directory on redhat
+  stat:
+    path: "{{ postgresql_data_dir }}/base"
+  register: pgdata_stat
+  failed_when: false
+
+- name: Initialize postgresql database (RedHat < 7)
+  command: /sbin/service postgresql-{{ postgres_version }} initdb
+  when: ansible_distribution_major_version is version(7, '<')
+
+- name: Initialize postgresql database (RedHat >= 7)
+  command: /usr/pgsql-{{ postgres_version }}/bin/postgresql-{{ postgres_version }}-setup initdb
+  when: ansible_distribution_major_version is version(7, '>=')
+
+- name: Install python's psycopg2 library on a redhat
+  yum:
+    name: "python{{ ansible_python.version.major }}-psycopg2"
+  when: python_install_psycopg2
+...

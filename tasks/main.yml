@@ -1,0 +1,26 @@
+---
+# tasks file for pg_installation_role
+
+- name: Include variable file specific to Debian OS
+  include_vars:
+    file: debian_vars.yml
+  when: ansible_os_family == "Debian"
+
+- include_tasks: psql_debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: Include variable file specific to Redhat OS
+  include_vars:
+    file: redhat_vars.yml
+  when: ansible_os_family == "RedHat"
+
+- include_tasks: psql_redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure PostgreSQL version is running
+  service:
+    name: "{{ postgresql_service }}"
+    enabled: true
+    state: started
+
+...

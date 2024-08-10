@@ -1,0 +1,34 @@
+---   
+- name: Add pgsql repository signing key on a debian distribution
+  get_url:
+    url: "{{ postgresql_debian_signing_key_url }}" 
+    dest: "{{ postgresql_signing_key_dest }}" 
+    mode: "0644"
+  register: postgresql_apt_key_result
+  until: postgresql_apt_key_result is succeeded
+  retries: 5
+  delay: 5
+
+- name: Include repository for PostgreSQL installation
+  apt_repository:
+    repo: "{{ postgresql_debian_pgdg_repo }}"
+    update_cache: true
+
+- name: Install PostgreSQL
+  apt:
+    name: "{{ postgresql_package }}"
+    state: present
+  become: yes
+  
+- name: Ensure PostgreSQL configuration directory exists
+  file:
+    path: "{{ pgsql_debian_conf_dir }}"
+    state: directory
+    recurse: yes
+  become: yes
+
+- name: Install python's psycopg2 library on a debian
+  apt:
+    name: "python{{ (ansible_python.version.major == 3) | ternary('3', '') }}-psycopg2"
+  when: python_install_psycopg2
+...
