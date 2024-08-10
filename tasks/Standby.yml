@@ -1,0 +1,69 @@
+# High Availability in PostgreSQL via RepMgr
+# Standby Server Configuration
+---
+# Configure postgresql.conf file
+- name: Configure postgresql conf in standby server
+  template:
+      src: templates/postgresql.conf.j2
+      dest: "{{ postgres_config_directory }}"
+  notify: Restart_Postgresql
+
+# Configure authentication in pg_hba.conf
+- name: Configure pg_hba conf in Standby server
+  template:
+      src: templates/pg_hba.conf.j2
+      dest: /etc/postgresql/{{ version }}/main/pg_hba.conf
+  notify: Restart_Postgresql
+
+- name: Run postgresql.conf handler now
+  meta: flush_handlers
+
+# Configure the repmgr file on Slave 1
+- name: Configure repmgr conf in Standby server 1
+  template:
+      src: templates/standby1_repmgr.conf.j2
+      dest: /var/lib/postgresql/repmgr.conf
+      owner: postgres
+      group: postgres
+      mode: '0644'
+  when: hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-Slave-1'
+
+# Configure the repmgr file on Slave 2
+- name: Configure repmgr conf in Standby server 2
+  template:
+      src: templates/standby2_repmgr.conf.j2
+      dest: /var/lib/postgresql/repmgr.conf
+      owner: postgres
+      group: postgres
+      mode: '0644'
+  when: hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-Slave-2'
+
+# Stop postgresql service for cloning
+- name: Stopped_Postgresql
+  service:
+      name: postgresql
+      state: stopped
+
+# Cloning standby
+- name: clone the standby server
+  command: >-
+            /usr/lib/postgresql/{{ version }}/bin/repmgr -h {{ master_ip }}
+            -U {{ repmgr_user }} -d {{ repmgr_db }}
+            -f /var/lib/postgresql/repmgr.conf standby clone -F
+  become_user: postgres
+  become: true
+  changed_when: false
+
+# Start postgresql service
+- name: Restart_Postgresql
+  service:
+      name: postgresql
+      state: restarted
+
+# Register the Standby server
+- name: repmgr register Standby
+  command: "{{ standby_register_command }}"
+  become_user: postgres
+  become: true
+  changed_when: false
+...

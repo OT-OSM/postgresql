@@ -1,0 +1,33 @@
+- name: failover-rejoin | stop postgresql
+  service:
+    name: postgresql
+    state: stopped
+  become: true
+
+- name: failover-rejoin |  node rejoin
+  command: >-
+            /usr/lib/postgresql/{{ version }}/bin/repmgr -h {{ new_master_ip }}
+            -U {{ repmgr_user }} -d {{ repmgr_db }}
+            -f /var/lib/postgresql/repmgr.conf standby clone -F
+  become_user: postgres
+  become: true
+  changed_when: false
+
+- name: failover-rejoin | start postgresql
+  service:
+    name: postgresql
+    state: started
+  become: true
+
+- name: failover-rejoin | standby register
+  command: "{{ rejoin_standby_command }}"
+  become_user: postgres
+  become: true
+  changed_when: false
+
+- name: failover-rejoin | start repmgr
+  systemd:
+    name: postgresql-repmgrd.service
+    state: started
+  become: true
+...

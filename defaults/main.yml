@@ -1,5 +1,6 @@
 ---
-# Specify the PostgreSQL version you wish to install, such as 12, 13, 14, 15, or 16. Simply adjust the version parameter accordingly.
-postgres_version: 16
-python_install_psycopg2: True
+# Install the specific version of PostgreSQL 16,15,14,13
+version: 16
+rejoin_standby_command: /usr/lib/postgresql/{{ version }}/bin/repmgr -f /var/lib/postgresql/repmgr.conf standby register --force
+new_master_ip: "{{ hostvars | dict2items | selectattr('value.tags.Name', 'match', '^PG-SQL-Slave-1$') | map(attribute='value.ansible_host') | first }}"
 ...

@@ -1,0 +1,16 @@
+---
+# handlers file for psql_HA
+- name: Update_Repository
+  apt:
+    update_cache: true
+
+- name: Start_postgresql
+  service:
+    name: postgresql
+    state: started
+
+- name: Restart_Postgresql
+  service:
+    name: postgresql
+    state: restarted
+...

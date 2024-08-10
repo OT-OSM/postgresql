@@ -1,0 +1,7 @@
+node_id=3
+node_name='node3'
+conninfo='host={{ postgres_listen_ip }} user={{ repmgr_user }} dbname={{ repmgr_db }} connect_timeout=2'
+data_directory='/var/lib/postgresql/{{ version }}/main/'
+failover='automatic'
+promote_command='/usr/lib/postgresql/{{ version }}/bin/repmgr standby promote -f /var/lib/postgresql/repmgr.conf --log-to-file'
+follow_command='/usr/lib/postgresql/{{ version }}/bin/repmgr standby follow -f /var/lib/postgresql/repmgr.conf --log-to-file --upstream-node-id=%n'

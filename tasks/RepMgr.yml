@@ -1,0 +1,26 @@
+# Install the repmgr version appropriate for your PostgreSQL version
+---
+# Update Package Manger
+- name: Update Package Manger
+  apt:
+     update_cache: true
+
+# Install Repmgr
+- name: Install Repmgr
+  apt:
+     name: postgresql-{{ version }}-repmgr
+     state: present
+
+- name: Install required packaged
+  apt:
+     name: "{{ item }}"
+     state: present
+  with_items:
+      - acl
+
+# Start postgresql service
+- name: Restart_Postgresql
+  service:
+     name: postgresql
+     state: restarted
+...

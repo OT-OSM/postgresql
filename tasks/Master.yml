@@ -1,0 +1,54 @@
+# High Availability in PostgreSQL via RepMgr
+# Master Server Configuration
+---
+# Create a dedicated PostgreSQL superuser account and a database for the repmgr
+- name: Create repmgr user
+  postgresql_user:
+     name: "{{ repmgr_user }}"
+     role_attr_flags: "{{ user_privilege }}"
+  become: true
+  become_user: postgres
+
+- name: Create repmgr_db database
+  postgresql_db:
+     name: "{{ repmgr_db }}"
+     owner: "{{ repmgr_user }}"
+  become: true
+  become_user: postgres
+
+# Configure postgresql.conf file
+- name: Configure postgresql conf in master server
+  template:
+     src: templates/postgresql.conf.j2
+     dest: "{{ postgres_config_directory }}"
+  notify: Restart_Postgresql
+
+- name: Update Directory | Run handler
+  meta: flush_handlers
+
+# Configure authentication in pg_hba.conf
+- name: Configure pg_hba conf in master server
+  template:
+     src: templates/pg_hba.conf.j2
+     dest: "{{ postgres_hba_directory }}"
+  notify: Restart_Postgresql
+
+- name: Update pg_hba.conf | flush handlers
+  meta: flush_handlers
+
+# Configure the repmgr file
+- name: Configure repmgr conf in master server
+  template:
+     src: templates/master_repmgr.conf.j2
+     dest: /var/lib/postgresql/repmgr.conf
+     owner: postgres
+     group: postgres
+     mode: '0644'
+
+# Register the primary server
+- name: repmgr register primary
+  command: "{{ primary_register_command }}"
+  become_user: postgres
+  become: true
+  changed_when: false
+...

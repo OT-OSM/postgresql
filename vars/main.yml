@@ -1,0 +1,13 @@
+---
+# vars file for psql_HA
+repmgr_user: repmgr
+user_privilege: SUPERUSER
+repmgr_db: repmgr_db
+postgres_config_directory: /etc/postgresql/{{ version }}/main/postgresql.conf
+postgres_hba_directory: /etc/postgresql/{{ version }}/main/pg_hba.conf
+primary_register_command: /usr/lib/postgresql/{{ version }}/bin/repmgr -f /var/lib/postgresql/repmgr.conf primary register -F
+standby_register_command: /usr/lib/postgresql/{{ version }}/bin/repmgr -f /var/lib/postgresql/repmgr.conf standby register -F
+postgres_listen_ip: "{% if postgres_use_internal_ip|bool %}{{ internal_ip }}{% else %}{{ ansible_default_ipv4.address }}{% endif %}"
+postgres_use_internal_ip: false
+master_ip: "{{ hostvars | dict2items | selectattr('value.tags.Name', 'match', '^PG-SQL-master$') | map(attribute='value.ansible_host') | first }}"
+...

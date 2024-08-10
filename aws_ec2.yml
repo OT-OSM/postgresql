@@ -1,3 +1,4 @@
+# AWS Dynamic Inventory Setup
 ---
 plugin: aws_ec2
 regions:
@@ -5,8 +6,10 @@ regions:
 
 filters:
   tag:Name:
-    - 'PG-SQL-Server'
+    - 'PG-SQL-master'
+    - 'PG-SQL-Slave-1'
+    - 'PG-SQL-Slave-2'
 
 compose:
-    ansible_host: public_ip_address
+    ansible_host: private_ip_address
 ...

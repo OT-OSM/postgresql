@@ -1,26 +1,24 @@
 ---
-# tasks file for pg_installation_role
+# tasks file for psql_HA
+- name: Debug Inventory Host Tags
+  debug:
+    var: hostvars[inventory_hostname].tags['Name']
 
-- name: Include variable file specific to Debian OS
-  include_vars:
-    file: debian_vars.yml
-  when: ansible_os_family == "Debian"
+- name: RepMgr | packages
+  import_tasks: RepMgr.yml
 
-- include_tasks: psql_debian.yml
-  when: ansible_os_family == "Debian"
+- name: Master | Replication setup
+  import_tasks: Master.yml
+  when: hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-master'
 
-- name: Include variable file specific to Redhat OS
-  include_vars:
-    file: redhat_vars.yml
-  when: ansible_os_family == "RedHat"
+- name: Standby.yml | Replication setup
+  import_tasks: Standby.yml
+  when: hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-Slave-1' or hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-Slave-2'
 
-- include_tasks: psql_redhat.yml
-  when: ansible_os_family == "RedHat"
+- name: Run Daemon
+  include_tasks: Daemon.yml
 
-- name: Ensure PostgreSQL version is running
-  service:
-    name: "{{ postgresql_service }}"
-    enabled: true
-    state: started
-
+# - name: Rejoin Nodes
+#   import_tasks: failover-rejoin.yml
+#   when: hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-master' or hostvars[inventory_hostname].tags['Name'] == 'PG-SQL-Slave-2'
 ...

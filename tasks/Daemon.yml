@@ -1,0 +1,17 @@
+---
+# Start the daemon process
+- name: configure file
+  copy:
+    src: templates/postgresql-repmgrd.service
+    dest: /etc/systemd/system/
+
+- name: Reload psql repmgrd service
+  command: sudo systemctl daemon-reload
+  become: true
+  changed_when: false
+
+- name: Start psql repmgrd service
+  systemd:
+    name: postgresql-repmgrd.service
+    state: started
+...

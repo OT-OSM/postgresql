@@ -1,0 +1,13 @@
+[Unit]
+Description=A replication manager
+After=network.target remote-fs.target
+
+[Service]
+User=postgres
+Group=postgres
+ExecStart=/usr/lib/postgresql/16/bin/repmgrd -dvmf /var/lib/postgresql/repmgr.conf --pid-file /tmp/repmgr.pid
+Type=forking
+PIDFile=/tmp/repmgr.pid
+
+[Install]
+WantedBy=multi-user.target
