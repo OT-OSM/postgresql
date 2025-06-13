@@ -10,9 +10,9 @@
   when: ansible_os_family == 'Debian'
 
 - name: This task is included to create a user in postgresql
-  include: users.yml
+  include_tasks: users.yml
   when: postgresql_users
 
 - name: This task is included to create a postgresql
-  include: database.yml
+  include_tasks: database.yml
   when: postgresql_database

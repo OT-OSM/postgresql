@@ -1,6 +1,6 @@
 ---
 postgresql_database: true
-version: 9.5
+version: 14
 postgresql_users: true
 user_list_attr: {attr: CREATEROLE, INHERIT, BYPASSRLS, CREATEDB}
 user_list:
