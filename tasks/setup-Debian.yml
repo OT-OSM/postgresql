@@ -14,7 +14,7 @@
     repo: "{{ postgresql_repo_url }}"
     state: present
 
-- name: Install PostgreSQL and pgAdmin4 on Ubuntu
+- name: Install PostgreSQL on Ubuntu
   apt:
     name: "{{ item }}"
     update_cache: true
