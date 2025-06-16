@@ -1,44 +1,47 @@
 ---
+
 - name: Install the repository RPM
-  yum:
+  ansible.builtin.yum:
     name: "{{ repo_url }}"
     state: present
     update_cache: true
 
 - name: Install the client packages
-  yum:
+  ansible.builtin.yum:
     name: "{{ item }}"
     state: present
     update_cache: true
   loop:
-    - '{{ redhat_package }}'
+    - "{{ redhat_package }}"
 
-- name: Ensure PostgreSQL database is initialized.
-  raw: service postgresql-{{ version }} initdb
+- name: Ensure PostgreSQL database is initialized (RedHat 6).
+  ansible.builtin.raw: service postgresql-{{ version }} initdb
   changed_when: true
   when: ansible_distribution_major_version == "6"
 
 - name: Set bin location to setup PostgreSQL
-  set_fact:
-    setup_loc: /usr/pgsql-{{ version }}/bin/postgresql
+  ansible.builtin.set_fact:
+    setup_loc: "/usr/pgsql-{{ version }}/bin/postgresql"
 
-- name: Ensure PostgreSQL database is initialized.
-  command: "{{ setup_loc }}{{ version | replace('.', '') }}-setup initdb"
+- name: Ensure PostgreSQL database is initialized (RedHat 7).
+  ansible.builtin.command: "{{ setup_loc }}{{ version | replace('.', '') }}-setup initdb"
   changed_when: true
   when: ansible_distribution_major_version == "7"
 
 - name: Start postgresql
-  service:
-    name: postgresql-{{ version }}
+  ansible.builtin.service:
+    name: "postgresql-{{ version }}"
     state: started
     enabled: true
 
-- name: Congfigure Postgresql
-  template:
+- name: Configure Postgres
+  ansible.builtin.template:
     src: centos_postgresql.j2
-    dest: /var/lib/pgsql/{{ version }}/data/postgresql.conf
+    dest: "/var/lib/pgsql/{{ version }}/data/postgresql.conf"
+    mode: "0644"
 
 - name: Restart postgresql
-  service:
-    name: postgresql-{{ version }}
+  ansible.builtin.service:
+    name: "postgresql-{{ version }}"
     state: restarted
+    enabled: true

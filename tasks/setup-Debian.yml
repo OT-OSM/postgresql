@@ -1,39 +1,41 @@
 ---
+
 - name: Install Gpg
-  apt:
+  ansible.builtin.apt:
     name: gnupg
     state: present
 
 - name: Add PostgreSQL APT repository key
-  apt_key:
+  ansible.builtin.apt_key:
     url: "{{ postgresql_repo_key_url }}"
     state: present
 
 - name: Add PostgreSQL APT repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ postgresql_repo_url }}"
     state: present
 
 - name: Install PostgreSQL on Ubuntu
-  apt:
+  ansible.builtin.apt:
     name: "{{ item }}"
     update_cache: true
     state: present
   loop: "{{ debian_package }}"
 
 - name: Start PostgreSQL
-  service:
+  ansible.builtin.service:
     name: postgresql
     state: started
     enabled: true
 
 - name: Configure PostgreSQL
-  template:
+  ansible.builtin.template:
     src: ubuntu_postgresql.j2
-    dest: /etc/postgresql/{{ version }}/main/postgresql.conf
+    dest: "/etc/postgresql/{{ version }}/main/postgresql.conf"
+    mode: "0644"
 
 - name: Restart PostgreSQL
-  service:
+  ansible.builtin.service:
     name: postgresql
     state: restarted
-
+    enabled: true
