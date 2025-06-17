@@ -1,10 +1,9 @@
 ---
-- name: create a user in the database
+- name: Create a user in the database
   become: true
   become_user: postgres
-  postgresql_user:
+  community.postgresql.postgresql_user:
     name: "{{ item.user }}"
     password: "{{ item.password }}"
     encrypted: true
-  with_items:
-    - "{{ user_list }}"
+  loop: "{{ user_list }}"
